@@ -1,0 +1,110 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.hm.com:
+    container_name: orderer.hm.com
+    extends:
+      file: peer-base.yaml
+      service: orderer-base
+    volumes:
+        - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ../crypto-config/ordererOrganizations/hm.com/orderers/orderer.hm.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/hm.com/orderers/orderer.hm.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.hm.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+  peer0.pes.hm.com:
+    container_name: peer0.pes.hm.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.pes.hm.com
+      - CORE_PEER_ADDRESS=peer0.pes.hm.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.pes.hm.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.pes.hm.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pes.hm.com:7051
+      - CORE_PEER_LOCALMSPID=PESMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/pes.hm.com/peers/peer0.pes.hm.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/pes.hm.com/peers/peer0.pes.hm.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.pes.hm.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+
+  peer1.pes.hm.com:
+    container_name: peer1.pes.hm.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.pes.hm.com
+      - CORE_PEER_ADDRESS=peer1.pes.hm.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.pes.hm.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.pes.hm.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.pes.hm.com:7051
+      - CORE_PEER_LOCALMSPID=PESMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/pes.hm.com/peers/peer1.pes.hm.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/pes.hm.com/peers/peer1.pes.hm.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.pes.hm.com:/var/hyperledger/production
+
+    ports:
+      - 8051:8051
+
+  peer0.dbs.hm.com:
+    container_name: peer0.dbs.hm.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.dbs.hm.com
+      - CORE_PEER_ADDRESS=peer0.dbs.hm.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.dbs.hm.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.dbs.hm.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.dbs.hm.com:10051
+      - CORE_PEER_LOCALMSPID=DBSMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/dbs.hm.com/peers/peer0.dbs.hm.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/dbs.hm.com/peers/peer0.dbs.hm.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.dbs.hm.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+
+  peer1.dbs.hm.com:
+    container_name: peer1.dbs.hm.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.dbs.hm.com
+      - CORE_PEER_ADDRESS=peer1.dbs.hm.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.dbs.hm.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.dbs.hm.com:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.dbs.hm.com:9051
+      - CORE_PEER_LOCALMSPID=DBSMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/dbs.hm.com/peers/peer1.dbs.hm.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/dbs.hm.com/peers/peer1.dbs.hm.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.dbs.hm.com:/var/hyperledger/production
+    ports:
+      - 10051:10051
